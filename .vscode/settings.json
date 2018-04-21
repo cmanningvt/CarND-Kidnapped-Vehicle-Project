@@ -1,0 +1,16 @@
+{
+    "C_Cpp.intelliSenseEngineFallback": "Disabled",
+
+    // The number of spaces a tab is equal to. This setting is overridden based on the file contents when `editor.detectIndentation` is on.
+    "editor.tabSize": 2,
+    "files.associations": {
+        "ostream": "cpp",
+        "vector": "cpp",
+        "chrono": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "xcomplex": "cpp",
+        "iostream": "cpp",
+        "dense": "cpp"
+    }
+}
