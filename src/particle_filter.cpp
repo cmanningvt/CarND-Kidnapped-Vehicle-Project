@@ -209,7 +209,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			particles[i].weight *= 1 / exp((y_obs-y_lm)*(y_obs-y_lm)/(2*std_landmark[1]*std_landmark[1]));
 			particles[i].weight *= 1 / (2*M_PI*std_landmark[0]*std_landmark[1]);
 		}
-		cout << "particle" << setw(3) << i << " weight " << particles[i].weight << endl;
+		cout << "particle" << i << " weight " << particles[i].weight << endl;
 	}
 }
 
