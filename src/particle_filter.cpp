@@ -188,28 +188,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// Compare observed landmarks to actual landmarks
 		dataAssociation(LandmarksInRange, translatedObservations);
 
-		particles[i].weight=1.0;
-    // Calculate weights.
-    for(unsigned int j = 0; j < translatedObservations.size(); j++) {
-      //Get Obxy and IDs
-	  	double observationX = translatedObservations[j].x;
-      double observationY = translatedObservations[j].y;
-	  	int landmarkId = translatedObservations[j].id;
-	  	double landmarkX, landmarkY;
-      int k = 0;
-      int nLandmarks = LandmarksInRange.size();
-      bool found = false;
-      while( !found && k < nLandmarks ) {
-        if ( LandmarksInRange[k].id == landmarkId) {
-          found = true;
-          landmarkX = LandmarksInRange[k].x;
-          landmarkY = LandmarksInRange[k].y;
-        }
-        k++;
-      }
+		// Update weights
+		particles[i].weight = 1.0;
+		for (unsigned int j = 0; j < translatedObservations.size(); ++j) {
+			double x_obs     = translatedObservations[j].x;
+			double y_obs     = translatedObservations[j].y;
+			double x_lm      = 0;
+			double y_lm      = 0;
+			for (unsigned int k = 0; k < LandmarksInRange.size(); ++k) {
+				if (LandmarksInRange[k].id == translatedObservations[j].id) {
+					x_lm         = LandmarksInRange[k].x;
+					y_lm         = LandmarksInRange[k].y;
+				}
+			}
 
-      double dX = observationX - landmarkX;
-      double dY = observationY - landmarkY;
+      double dX = x_obs - x_lm;
+      double dY = y_obs - y_lm;
 	  	double Normalizer = 2*std_landmark[0]*std_landmark[1];
 	  	double dist_temp = dX*dX/(Normalizer) + dY*dY/(Normalizer);
 	  	//Gaussian Dist
