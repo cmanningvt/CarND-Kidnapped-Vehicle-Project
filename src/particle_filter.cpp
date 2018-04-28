@@ -109,13 +109,13 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   implement this method and use it as a helper during the updateWeights phase.
 
 	// Loop through each observed landmark
-	for (int i = 0; i < observations.size(); ++i) {
+	for (unsigned int i = 0; i < observations.size(); ++i) {
 		// Initialize default values for searching
 		double closestLandmarkDistance = 1000000;
 		int closestLandmarkID = -1;
 		
 		// Loop through each predicted landmark
-		for (int j = 0; j < predicted.size(); ++j) {
+		for (unsigned int j = 0; j < predicted.size(); ++j) {
 			// Calculate distance between observed and predicted landmark
 			double distance = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y);
 			
@@ -153,7 +153,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		// Convert observations to map coordinates
 		std::vector<LandmarkObs> translatedObservations;
-		for (int j = 0; j < observations.size(); ++j) {
+		for (unsigned int j = 0; j < observations.size(); ++j) {
 			LandmarkObs translatedObs;
 
 			// Get observation positions
@@ -171,7 +171,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		// Find landmarks in sensor range
 		std::vector<LandmarkObs> LandmarksInRange;
-		for (int j = 0; j < map_landmarks.landmark_list.size(); ++j) {
+		for (unsigned int j = 0; j < map_landmarks.landmark_list.size(); ++j) {
 			LandmarkObs landmark;
 
 			// Get landmark positions
@@ -194,12 +194,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		// Update weights
 		particles[i].weight = 1.0;
-		for (int j = 0; j < translatedObservations.size(); ++j) {
+		for (unsigned int j = 0; j < translatedObservations.size(); ++j) {
 			double x_obs     = observations[j].x;
 			double y_obs     = observations[j].y;
 			double x_lm      = 0;
 			double y_lm      = 0;
-			for (int k = 0; k < LandmarksInRange.size(); ++k) {
+			for (unsigned int k = 0; k < LandmarksInRange.size(); ++k) {
 				if (LandmarksInRange[k].id == translatedObservations[j].id) {
 					x_lm         = LandmarksInRange[k].x;
 					y_lm         = LandmarksInRange[k].y;
@@ -267,6 +267,8 @@ Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<i
     particle.associations= associations;
     particle.sense_x = sense_x;
     particle.sense_y = sense_y;
+
+		return particle;
 }
 
 string ParticleFilter::getAssociations(Particle best)
