@@ -169,6 +169,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			translatedObservations.push_back(translatedObs);
 		}
 
+		cout << "num observations" << translatedObservations.size() << endl;
+
 		// Find landmarks in sensor range
 		std::vector<LandmarkObs> LandmarksInRange;
 		for (unsigned int j = 0; j < map_landmarks.landmark_list.size(); ++j) {
@@ -188,6 +190,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				LandmarksInRange.push_back(landmark);
 			}
 		}
+
+		cout << "num landmarks" << LandmarksInRange.size() << endl;
 
 		// Compare observed landmarks to actual landmarks
 		dataAssociation(LandmarksInRange, translatedObservations);
