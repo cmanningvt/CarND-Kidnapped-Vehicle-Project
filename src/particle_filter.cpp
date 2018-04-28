@@ -217,43 +217,39 @@ void ParticleFilter::resample() {
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 
-	// Get vector of weights and maxWeight
-	std::vector<double> weights;
-	double maxWeight = 0.0;
-	for (int i = 0; i < num_particles; ++i) {
+	// Create distributions and random generator
+	std::default_random_engine generator;
+	
+	vector<double> weights;
+	double maxWeight = 0;
+	for(int i = 0; i < num_particles; i++) {
 		weights.push_back(particles[i].weight);
-		if (particles[i].weight > maxWeight) {
-			maxWeight = particles[i].weight;
+		if ( particles[i].weight > maxWeight ) {
+		  maxWeight = particles[i].weight;
 		}
 	}
 
-	// Create random generator and distribution
-	std::default_random_engine generator;
-	std::discrete_distribution<> part_dist(weights.begin(), weights.end());
+	// Samplers.
+	//Beta Dist Sampler
+	uniform_real_distribution<double> distDouble(0.0, maxWeight);
+	// Index Dist Sampler
+	uniform_int_distribution<int> distInt(0, num_particles - 1);
 
-	/*// Get random initial index
-	uniform_int_distribution<int> index_dist(0, num_particles - 1);
-	int index = index_dist(generator);*/
+	// Generating index.
+	int index = distInt(generator);
 
-	// Initialize new particles list
-	std::vector<Particle> resampledParticles;
+	double beta = 0.0;
 
-	// Generate resampled particles list
-	// double beta = 0.0;
-	for (int i = 0; i < num_particles; ++i) {
-		/*beta += beta_dist(generator);
-		while (beta > weights[index]) {
-			beta -= weights[index];
-			index += 1;
-			if (index == num_particles) {
-				index = 0;
-			}
-    }
-		resampledParticles.push_back(particles[index]);*/
-		resampledParticles.push_back(particles[part_dist(generator)]);
+	vector<Particle> resampledParticles;
+	for(int i = 0; i < num_particles; i++) {
+	beta += distDouble(generator) * 2.0  * maxWeight;  //Make value larger than twice the max weight
+	while( weights[index] < beta) {
+	  beta -= weights[index];
+	  index = (index + 1) % num_particles;
+	}
+	resampledParticles.push_back(particles[index]);
 	}
 
-	// Overwrite particle list with resampled particles
 	particles = resampledParticles;
 }
 
