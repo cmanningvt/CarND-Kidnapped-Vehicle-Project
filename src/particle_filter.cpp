@@ -60,8 +60,11 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 
-	// Create random generator
+	// Create random generator and distributions
 	std::default_random_engine generator;
+	std::normal_distribution<double> x_noise(0, std_pos[0]);
+	std::normal_distribution<double> y_noise(0, std_pos[1]);
+	std::normal_distribution<double> theta_noise(0, std_pos[2]);
 
 	for (int i = 0; i < num_particles; ++i) {
 		// Get old positions
@@ -74,24 +77,19 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		double y_new     = y;
 		double theta_new = theta;
 		if (abs(yaw_rate) < 1e-6) {
-			x_new = x + velocity * delta_t * cos(theta);
-			y_new = y + velocity * delta_t * sin(theta);
+			x_new     = x     + velocity * delta_t * cos(theta);
+			y_new     = y     + velocity * delta_t * sin(theta);
 		}
 		else {
-			x_new = x + velocity/yaw_rate * (sin(theta + yaw_rate * delta_t) - sin(theta));
-			y_new = y + velocity/yaw_rate * (cos(theta) - cos(theta + yaw_rate * delta_t));
+			x_new     = x     + velocity/yaw_rate * (sin(theta + yaw_rate * delta_t) - sin(theta));
+			y_new     = y     + velocity/yaw_rate * (cos(theta) - cos(theta + yaw_rate * delta_t));
 			theta_new = theta + yaw_rate * delta_t;
 		}
 
-		// Create distributions
-		std::normal_distribution<double> x_dist(x_new, std_pos[0]);
-		std::normal_distribution<double> y_dist(y_new, std_pos[1]);
-		std::normal_distribution<double> theta_dist(theta_new, std_pos[2]);
-
 		// Update particle
-		particles[i].x            = x_dist(generator);
-		particles[i].y            = y_dist(generator);
-		particles[i].theta        = theta_dist(generator);
+		particles[i].x            = x_new     + x_noise(generator);
+		particles[i].y            = y_new     + y_noise(generator);
+		particles[i].theta        = theta_new + theta_noise(generator);
 	}
 
 }
