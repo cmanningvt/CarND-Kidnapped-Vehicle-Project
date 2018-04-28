@@ -195,8 +195,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// Update weights
 		particles[i].weight = 1.0;
 		for (unsigned int j = 0; j < translatedObservations.size(); ++j) {
-			double x_obs     = observations[j].x;
-			double y_obs     = observations[j].y;
+			double x_obs     = translatedObservations[j].x;
+			double y_obs     = translatedObservations[j].y;
 			double x_lm      = 0;
 			double y_lm      = 0;
 			for (unsigned int k = 0; k < LandmarksInRange.size(); ++k) {
