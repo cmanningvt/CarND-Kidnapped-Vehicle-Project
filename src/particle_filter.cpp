@@ -48,8 +48,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		//particle.associations = 0;
 
 		// Angle normalization
-		while (particle.theta >  M_PI) particle.theta -= 2. * M_PI;
-		while (particle.theta < -M_PI) particle.theta += 2. * M_PI;
+		//while (particle.theta >  M_PI) particle.theta -= 2. * M_PI;
+		//while (particle.theta < -M_PI) particle.theta += 2. * M_PI;
 
 		// Add particle to list of particles
 		particles.push_back(particle);
@@ -97,8 +97,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		particles[i].theta        = theta_new + theta_noise(generator);
 
 		// Angle normalization
-		while (particles[i].theta >  M_PI) particles[i].theta -= 2. * M_PI;
-		while (particles[i].theta < -M_PI) particles[i].theta += 2. * M_PI;
+		//while (particles[i].theta >  M_PI) particles[i].theta -= 2. * M_PI;
+		//while (particles[i].theta < -M_PI) particles[i].theta += 2. * M_PI;
 	}
 }
 
