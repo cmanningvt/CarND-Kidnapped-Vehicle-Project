@@ -144,6 +144,72 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   and the following is a good resource for the actual equation to implement (look at equation 
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
+
+	for (int i = 0; i < num_particles; ++i) {
+		// Get particle positions
+		double x_part     = particles[i].x;
+		double y_part     = particles[i].y;
+		double theta_part = particles[i].theta;
+
+		// Convert observations to map coordinates
+		std::vector<LandmarkObs> translatedObservations;
+		for (int j = 0; j < observations.size(); ++j) {
+			LandmarkObs translatedObs;
+
+			// Get observation positions
+			double x_obs     = observations[j].x;
+			double y_obs     = observations[j].y;
+
+			// Calculate observation coordinates in map system
+			translatedObs.x  = x_part + cos(theta_part)*x_obs - sin(theta_part)*y_obs;
+			translatedObs.y  = y_part + sin(theta_part)*x_obs + cos(theta_part)*y_obs;
+			translatedObs.id = -1;
+
+			// Add to list
+			translatedObservations.push_back(translatedObs);
+		}
+
+		// Find landmarks in sensor range
+		std::vector<LandmarkObs> LandmarksInRange;
+		for (int j = 0; j < map_landmarks.landmark_list.size(); ++j) {
+			LandmarkObs landmark;
+
+			// Get landmark positions
+			double x_lm     = map_landmarks.landmark_list[j].x_f;
+			double y_lm     = map_landmarks.landmark_list[j].y_f;
+
+			if (dist(x_part, y_part, x_lm, y_lm) < 2*sensor_range) {
+				// Calculate observation coordinates in map system
+				landmark.x  = x_lm;
+				landmark.y  = y_lm;
+				landmark.id = map_landmarks.landmark_list[j].id_i;
+
+				// Add to list
+				LandmarksInRange.push_back(landmark);
+			}
+		}
+
+		// Compare observed landmarks to actual landmarks
+		dataAssociation(LandmarksInRange, translatedObservations);
+
+		// Update weights
+		particles[i].weight = 1.0;
+		for (int j = 0; j < translatedObservations.size(); ++j) {
+			double x_obs     = observations[j].x;
+			double y_obs     = observations[j].y;
+			double x_lm      = 0;
+			double y_lm      = 0;
+			for (int k = 0; k < LandmarksInRange.size(); ++k) {
+				if (LandmarksInRange[k].id == translatedObservations[j].id) {
+					x_lm         = LandmarksInRange[k].x;
+					y_lm         = LandmarksInRange[k].y;
+				}
+			}
+			particles[i].weight *= 1 / exp((x_obs-x_lm)*(x_obs-x_lm)/(2*std_landmark[0]*std_landmark[0]));
+			particles[i].weight *= 1 / exp((y_obs-y_lm)*(y_obs-y_lm)/(2*std_landmark[1]*std_landmark[1]));
+			particles[i].weight *= 1 / (2*M_PI*std_landmark[0]*std_landmark[1]);
+		}
+	}
 }
 
 void ParticleFilter::resample() {
