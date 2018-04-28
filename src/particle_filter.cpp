@@ -145,59 +145,72 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
+	for (int i = 0; i < num_particles; ++i) {
+		// Get particle positions
+		double x_part     = particles[i].x;
+		double y_part     = particles[i].y;
+		double theta_part = particles[i].theta;
 
-	double stdLandmarkRange = std_landmark[0];
-	double stdLandmarkBearing = std_landmark[1];
-	
-	for (int i = 0; i < num_particles; i ++){
-		double x = particles[i].x;
-		double y = particles[i].y;
-		double theta = particles[i].theta;
-		
-		double sensor_range_2 = sensor_range * sensor_range;
-		vector <LandmarkObs> inRangeLandmarks;
-		//Filter landmarks and particles
-		for (unsigned int j =0; j < map_landmarks.landmark_list.size(); j++) {
-			float landmarkX = map_landmarks.landmark_list[j].x_f;
-			float landmarkY = map_landmarks.landmark_list[j].y_f;
-			int id = map_landmarks.landmark_list[j].id_i;
-			double dX = x - landmarkX;
-			double dY = y - landmarkY;
-			if (dX* dX + dY* dY <= sensor_range_2) {
-				inRangeLandmarks.push_back(LandmarkObs{id, landmarkX, landmarkY });
+		// Convert observations to map coordinates
+		std::vector<LandmarkObs> translatedObservations;
+		for (unsigned int j = 0; j < observations.size(); ++j) {
+			LandmarkObs translatedObs;
+
+			// Calculate observation coordinates in map system
+			translatedObs.x  = x_part + cos(theta_part)*observations[j].x - sin(theta_part)*observations[j].y;
+			translatedObs.y  = y_part + sin(theta_part)*observations[j].x + cos(theta_part)*observations[j].y;
+			translatedObs.id = observations[j].id;
+
+			// Add to list
+			translatedObservations.push_back(translatedObs);
+		}
+
+		// Find landmarks in sensor range
+		std::vector<LandmarkObs> LandmarksInRange;
+		for (unsigned int j = 0; j < map_landmarks.landmark_list.size(); ++j) {
+			LandmarkObs landmark;
+
+			// Get landmark positions
+			double x_lm     = map_landmarks.landmark_list[j].x_f;
+			double y_lm     = map_landmarks.landmark_list[j].y_f;
+
+			if (dist(x_part, y_part, x_lm, y_lm) < sensor_range) {
+				// Calculate observation coordinates in map system
+				landmark.x  = x_lm;
+				landmark.y  = y_lm;
+				landmark.id = map_landmarks.landmark_list[j].id_i;
+
+				// Add to list
+				LandmarksInRange.push_back(landmark);
 			}
 		}
-		vector<LandmarkObs> mappedObservations;
-		for (unsigned int j = 0; j< observations.size(); j++){
-			double xx = cos(theta)*observations[j].x - sin(theta)*observations[j].y + x;
-			double yy = sin(theta)*observations[j].x + cos(theta)*observations[j].y + y;
-			mappedObservations.push_back(LandmarkObs{ observations[j].id, xx, yy });
-		}
-		dataAssociation(inRangeLandmarks, mappedObservations);
 
-	particles[i].weight=1.0;
+		// Compare observed landmarks to actual landmarks
+		dataAssociation(LandmarksInRange, translatedObservations);
+
+		particles[i].weight=1.0;
     // Calculate weights.
-    for(unsigned int j = 0; j < mappedObservations.size(); j++) {
+    for(unsigned int j = 0; j < translatedObservations.size(); j++) {
       //Get Obxy and IDs
-	  	double observationX = mappedObservations[j].x;
-      double observationY = mappedObservations[j].y;
-	  	int landmarkId = mappedObservations[j].id;
+	  	double observationX = translatedObservations[j].x;
+      double observationY = translatedObservations[j].y;
+	  	int landmarkId = translatedObservations[j].id;
 	  	double landmarkX, landmarkY;
       int k = 0;
-      int nLandmarks = inRangeLandmarks.size();
+      int nLandmarks = LandmarksInRange.size();
       bool found = false;
       while( !found && k < nLandmarks ) {
-        if ( inRangeLandmarks[k].id == landmarkId) {
+        if ( LandmarksInRange[k].id == landmarkId) {
           found = true;
-          landmarkX = inRangeLandmarks[k].x;
-          landmarkY = inRangeLandmarks[k].y;
+          landmarkX = LandmarksInRange[k].x;
+          landmarkY = LandmarksInRange[k].y;
         }
         k++;
       }
 
       double dX = observationX - landmarkX;
       double dY = observationY - landmarkY;
-	  	double Normalizer = 2*stdLandmarkBearing*stdLandmarkRange;
+	  	double Normalizer = 2*std_landmark[0]*std_landmark[1];
 	  	double dist_temp = dX*dX/(Normalizer) + dY*dY/(Normalizer);
 	  	//Gaussian Dist
       double weight = ( 1/( Normalizer*M_PI	)) * exp( -(( dist_temp) ));
