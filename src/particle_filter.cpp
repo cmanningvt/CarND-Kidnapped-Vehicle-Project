@@ -54,8 +54,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		// Add particle to list of particles
 		particles.push_back(particle);
 	}
-
-	cout << "particles =  " << particles << endl;
 	
 	// Complete initialization
 	is_initialized = true;
