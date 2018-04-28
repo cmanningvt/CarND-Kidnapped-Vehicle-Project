@@ -41,7 +41,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 		particle.x            = x_dist(generator);
 		particle.y            = y_dist(generator);
 		particle.theta        = theta_dist(generator);
-		particle.weight       = 1;
+		particle.weight       = 1.0;
 		// No need to initialize these variables
 		//particle.sense_x      = 0;
 		//particle.sense_y      = 0;
