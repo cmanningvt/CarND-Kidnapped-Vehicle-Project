@@ -202,12 +202,19 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				}
 			}
 
-      double dX = x_obs - x_lm;
+			double weight = 1.0;
+			weight *= 1 / exp((x_obs-x_lm)*(x_obs-x_lm)/(2*std_landmark[0]*std_landmark[0]));
+			weight *= 1 / exp((y_obs-y_lm)*(y_obs-y_lm)/(2*std_landmark[1]*std_landmark[1]));
+			weight *= 1 / (2*M_PI*std_landmark[0]*std_landmark[1]);
+
+      /*
+			double dX = x_obs - x_lm;
       double dY = y_obs - y_lm;
 	  	double Normalizer = 2*std_landmark[0]*std_landmark[1];
 	  	double dist_temp = dX*dX/(Normalizer) + dY*dY/(Normalizer);
 	  	//Gaussian Dist
       double weight = ( 1/( Normalizer*M_PI	)) * exp( -(( dist_temp) ));
+			*/
 	  
       if (weight == 0) {
         particles[i].weight *= 0.00001;
