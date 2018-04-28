@@ -207,20 +207,15 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			weight *= 1 / exp((y_obs-y_lm)*(y_obs-y_lm)/(2*std_landmark[1]*std_landmark[1]));
 			weight *= 1 / (2*M_PI*std_landmark[0]*std_landmark[1]);
 
+			particles[i].weight *= weight;
+
       /*
-			double dX = x_obs - x_lm;
-      double dY = y_obs - y_lm;
-	  	double Normalizer = 2*std_landmark[0]*std_landmark[1];
-	  	double dist_temp = dX*dX/(Normalizer) + dY*dY/(Normalizer);
-	  	//Gaussian Dist
-      double weight = ( 1/( Normalizer*M_PI	)) * exp( -(( dist_temp) ));
-			*/
-	  
       if (weight == 0) {
         particles[i].weight *= 0.00001;
       } else {
         particles[i].weight *= weight;
       }
+			*/
     }
 	}
 }
@@ -244,25 +239,11 @@ void ParticleFilter::resample() {
 	std::default_random_engine generator;
 	std::discrete_distribution<> part_dist(weights.begin(), weights.end());
 
-	/*// Get random initial index
-	uniform_int_distribution<int> index_dist(0, num_particles - 1);
-	int index = index_dist(generator);*/
-
 	// Initialize new particles list
 	std::vector<Particle> resampledParticles;
 
 	// Generate resampled particles list
-	// double beta = 0.0;
 	for (int i = 0; i < num_particles; ++i) {
-		/*beta += beta_dist(generator);
-		while (beta > weights[index]) {
-			beta -= weights[index];
-			index += 1;
-			if (index == num_particles) {
-				index = 0;
-			}
-    }
-		resampledParticles.push_back(particles[index]);*/
 		resampledParticles.push_back(particles[part_dist(generator)]);
 	}
 
