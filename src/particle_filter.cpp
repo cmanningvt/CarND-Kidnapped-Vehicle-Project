@@ -229,19 +229,19 @@ void ParticleFilter::resample() {
 
 	// Create random generator and distribution
 	std::default_random_engine generator;
-	std::discrete_distribution<> beta_dist(weights.begin(), weights.end());
+	std::discrete_distribution<> part_dist(weights.begin(), weights.end());
 
-	// Get random initial index
+	/*// Get random initial index
 	uniform_int_distribution<int> index_dist(0, num_particles - 1);
-	int index = index_dist(generator);
+	int index = index_dist(generator);*/
 
 	// Initialize new particles list
 	std::vector<Particle> resampledParticles;
 
 	// Generate resampled particles list
-	double beta = 0.0;
+	// double beta = 0.0;
 	for (int i = 0; i < num_particles; ++i) {
-		beta += beta_dist(generator);
+		/*beta += beta_dist(generator);
 		while (beta > weights[index]) {
 			beta -= weights[index];
 			index += 1;
@@ -249,7 +249,8 @@ void ParticleFilter::resample() {
 				index = 0;
 			}
     }
-		resampledParticles.push_back(particles[index]);
+		resampledParticles.push_back(particles[index]);*/
+		resampledParticles.push_back(particles[part_dist(generator)]);
 	}
 
 	// Overwrite particle list with resampled particles
