@@ -157,7 +157,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double sensor_range_2 = sensor_range * sensor_range;
 		vector <LandmarkObs> inRangeLandmarks;
 		//Filter landmarks and particles
-		for (int j =0; j < map_landmarks.landmark_list.size(); j++) {
+		for (unsigned int j =0; j < map_landmarks.landmark_list.size(); j++) {
 			float landmarkX = map_landmarks.landmark_list[j].x_f;
 			float landmarkY = map_landmarks.landmark_list[j].y_f;
 			int id = map_landmarks.landmark_list[j].id_i;
@@ -168,7 +168,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			}
 		}
 		vector<LandmarkObs> mappedObservations;
-		for (int j = 0; j< observations.size(); j++){
+		for (unsigned int j = 0; j< observations.size(); j++){
 			double xx = cos(theta)*observations[j].x - sin(theta)*observations[j].y + x;
 			double yy = sin(theta)*observations[j].x + cos(theta)*observations[j].y + y;
 			mappedObservations.push_back(LandmarkObs{ observations[j].id, xx, yy });
@@ -177,7 +177,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 	particles[i].weight=1.0;
     // Calculate weights.
-    for(int j = 0; j < mappedObservations.size(); j++) {
+    for(unsigned int j = 0; j < mappedObservations.size(); j++) {
       //Get Obxy and IDs
 	  	double observationX = mappedObservations[j].x;
       double observationY = mappedObservations[j].y;
