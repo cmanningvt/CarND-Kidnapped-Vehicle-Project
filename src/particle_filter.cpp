@@ -188,7 +188,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// Compare observed landmarks to actual landmarks
 		dataAssociation(LandmarksInRange, translatedObservations);
 
-		// Update weights
+		// Get coordinates for calculating weights
 		particles[i].weight = 1.0;
 		for (unsigned int j = 0; j < translatedObservations.size(); ++j) {
 			double x_obs     = translatedObservations[j].x;
@@ -202,20 +202,14 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				}
 			}
 
+			// Calculate observations weight from Multivariate-Gaussian
 			double weight = 1.0;
 			weight *= 1 / exp((x_obs-x_lm)*(x_obs-x_lm)/(2*std_landmark[0]*std_landmark[0]));
 			weight *= 1 / exp((y_obs-y_lm)*(y_obs-y_lm)/(2*std_landmark[1]*std_landmark[1]));
 			weight *= 1 / (2*M_PI*std_landmark[0]*std_landmark[1]);
 
+			// Update particle weight
 			particles[i].weight *= weight;
-
-      /*
-      if (weight == 0) {
-        particles[i].weight *= 0.00001;
-      } else {
-        particles[i].weight *= weight;
-      }
-			*/
     }
 	}
 }
